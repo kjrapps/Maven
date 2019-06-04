@@ -1,0 +1,25 @@
+node('master')
+{
+    stage('ContinuousDownload')
+    {
+       git 'https://github.com/kjrapps/Maven.git'
+    }
+    stage('ContinuousBuild')
+    {
+        sh label: '', script: 'mvn package'
+    }
+    stage('ContinuousDeployment')
+    {
+        sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/ScriptedPipeline/webapp/target/webapp.war ubuntu@172.31.14.49:/var/lib/tomcat8/webapps/qaenv.war'
+    }
+    stage('ContinuousTesting')
+    {
+        git 'https://github.com/kjrapps/Maven.git'
+        sh label: '', script: 'echo "Testing Passed"'
+    }
+    stage('ContinuousDelivery')
+    {
+        input 'Waiting for Approval from Delivery Manager!'
+         sh label: '', script: 'scp /home/ubuntu/.jenkins/workspace/ScriptedPipeline/webapp/target/webapp.war ubuntu@172.31.12.230:/var/lib/tomcat8/webapps/prodenv.war'
+    }
+}
